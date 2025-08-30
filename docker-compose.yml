@@ -1,0 +1,29 @@
+﻿version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=localhost;Database=DummyApiDb;User Id=sa;Password=YourStrongPassword123!;TrustServerCertificate=True;
+
+  db:
+     image: mcr.microsoft.com/mssql/server:2022-latest
+     environment:
+       - ACCEPT_EULA=Y
+       - SA_PASSWORD=YourStrongPassword123!
+     ports:
+       - "1433:1433"
+     volumes:
+       - sqlserver_data:/var/opt/mssql
+     healthcheck:
+       test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrongPassword123! -Q 'SELECT 1' || exit 1"]
+       interval: 10s
+       timeout: 5s
+       retries: 5
+
+volumes:
+  sqlserver_data:
